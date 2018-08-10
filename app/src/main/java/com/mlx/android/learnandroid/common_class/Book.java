@@ -7,14 +7,33 @@ import android.os.Parcelable;
  * Created by MLXPHONE on 2018/5/27.
  */
 
-public class Book implements Parcelable{
+public class Book implements Parcelable {
 
+    public static final Parcelable.Creator<Book> CREATOR = new Parcelable.Creator<Book>() {
+        @Override
+        public Book createFromParcel(Parcel parcel) {
+            return new Book(parcel);
+        }
+
+        @Override
+        public Book[] newArray(int i) {
+            return new Book[i];
+        }
+    };
     public int bookId;
     public String bookName;
+
+    public Book() {
+    }
 
     public Book(int bookId, String bookName) {
         this.bookId = bookId;
         this.bookName = bookName;
+    }
+
+    private Book(Parcel in) {
+        bookId = in.readInt();
+        bookName = in.readString();
     }
 
     @Override
@@ -28,21 +47,8 @@ public class Book implements Parcelable{
         parcel.writeString(bookName);
     }
 
-    public static final Parcelable.Creator<Book> CREATOR=new Parcelable.Creator<Book>(){
-        @Override
-        public Book createFromParcel(Parcel parcel) {
-            return new Book(parcel);
-        }
-
-        @Override
-        public Book[] newArray(int i) {
-            return new Book[i];
-        }
-    };
-
-    private Book(Parcel in){
-        bookId=in.readInt();
-        bookName=in.readString();
+    public void books() {
+        System.out.println("Hello world!");
     }
 
 
