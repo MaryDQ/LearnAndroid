@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Scroller;
 
@@ -31,19 +32,22 @@ public class HorzontalScrollViewEx extends ViewGroup {
 
     public HorzontalScrollViewEx(Context context) {
         super(context);
-    }
-
-    public HorzontalScrollViewEx(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public HorzontalScrollViewEx(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        init();
     }
 
     private void init() {
         mScroller = new Scroller(getContext());
         mVelocityTracker = VelocityTracker.obtain();
+    }
+
+    public HorzontalScrollViewEx(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+    public HorzontalScrollViewEx(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
     }
 
     @Override
@@ -80,8 +84,26 @@ public class HorzontalScrollViewEx extends ViewGroup {
     }
 
     @Override
-    protected void onLayout(boolean b, int i, int i1, int i2, int i3) {
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        int childLeft = 0;
+        final int childCount = getChildCount();
+        mChildrenSize=childCount;
 
+        for (int i = 0; i < childCount; i++) {
+            final View childView=getChildAt(i);
+            if (childView.getVisibility()!=GONE){
+                final int childWidth=childView.getMeasuredWidth();
+                mChildrenWidth=childWidth;
+                childView.layout(childLeft,0,childLeft+childWidth,childView.getMeasuredHeight());
+                childLeft+=childWidth;
+            }
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        mVelocityTracker.recycle();
+        super.onDetachedFromWindow();
     }
 
     @Override
@@ -133,6 +155,36 @@ public class HorzontalScrollViewEx extends ViewGroup {
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
             postInvalidate();
+        }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int measuredWidth = 0;
+        int measuredHeight = 0;
+        final int childCount = getChildCount();
+        measureChildren(widthMeasureSpec, heightMeasureSpec);
+
+        int widthSpaceSize = MeasureSpec.getSize(widthMeasureSpec);
+        int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightSpaceSize = MeasureSpec.getSize(heightMeasureSpec);
+        int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+        if (childCount == 0) {
+            setMeasuredDimension(0, 0);
+        } else if (widthMeasureSpec == MeasureSpec.AT_MOST && heightMeasureSpec == MeasureSpec.AT_MOST) {
+            final View childView = getChildAt(0);
+            measuredWidth = childView.getMeasuredWidth() * childCount;
+            measuredHeight = childView.getMeasuredHeight();
+            setMeasuredDimension(measuredWidth, measuredHeight);
+        } else if (heightMeasureSpec == MeasureSpec.AT_MOST) {
+            final View childView = getChildAt(0);
+            measuredHeight = childView.getMeasuredHeight();
+            setMeasuredDimension(widthSpaceSize, childView.getMeasuredHeight());
+        } else if (widthSpaceSize == MeasureSpec.AT_MOST) {
+            final View childView = getChildAt(0);
+            measuredWidth = childView.getMeasuredWidth() * childCount;
+            setMeasuredDimension(measuredWidth, heightMeasureSpec);
         }
     }
 }

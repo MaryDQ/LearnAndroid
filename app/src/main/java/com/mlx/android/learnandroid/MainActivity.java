@@ -1,5 +1,6 @@
 package com.mlx.android.learnandroid;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,11 +11,14 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.mlx.android.learnandroid.utils.HookManager;
+
+public class MainActivity extends Activity {
 
     private static final String TAG = "MainActivity";
 
@@ -28,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.d(TAG, "onCreate: ");
+
         mContext = this;
 
         manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -37,10 +43,12 @@ public class MainActivity extends AppCompatActivity {
         mButtonTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
+                Toast.makeText(mContext, "Hello from mlx", Toast.LENGTH_SHORT).show();
             }
         });
+
+        HookManager hookManager=new HookManager();
+        hookManager.hookOnClickListener(mButtonTest);
     }
 
     /**
